@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Số Theo Tên</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 50px;
+    }
+    input, button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #f0f0f0;
+      margin: 5px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Nhập Họ và Tên để Random Số</h2>
+  <input type="text" id="nameInput" placeholder="Nhập họ và tên">
+  <button onclick="randomNumber()">Random</button>
+  <!-- Nút xóa dữ liệu (Admin) -->
+  <button onclick="clearData()">Xóa dữ liệu (Admin)</button>
+
+  <div id="result"></div>
+  <h3>Danh sách người đã Random:</h3>
+  <ul id="history"></ul>
+
+  <script>
+    // Khởi tạo mảng các số có sẵn từ 1 đến 5 và lịch sử quay số
+    let availableNumbers = [1, 2, 3, 4, 5];
+    let history = [];
+
+    // Hàm load dữ liệu từ localStorage khi trang được tải
+    function loadData() {
+      const savedHistory = localStorage.getItem("history");
+      const savedNumbers = localStorage.getItem("availableNumbers");
+
+      if (savedHistory) {
+        history = JSON.parse(savedHistory);
+        updateHistory();
+      }
+      if (savedNumbers) {
+        availableNumbers = JSON.parse(savedNumbers);
+      }
+    }
+
+    // Hàm lưu dữ liệu vào localStorage
+    function saveData() {
+      localStorage.setItem("history", JSON.stringify(history));
+      localStorage.setItem("availableNumbers", JSON.stringify(availableNumbers));
+    }
+
+    function randomNumber() {
+      // Lấy tên người dùng nhập vào
+      let name = document.getElementById("nameInput").value.trim();
+      
+      if (name === "") {
+        alert("Vui lòng nhập họ và tên!");
+        return;
+      }
+
+      // Kiểm tra nếu không còn số nào để random
+      if (availableNumbers.length === 0) {
+        alert("Tất cả số đã được chọn, không thể random thêm!");
+        return;
+      }
+
+      // Chọn một số ngẫu nhiên trong mảng availableNumbers
+      let randomIndex = Math.floor(Math.random() * availableNumbers.length);
+      let chosenNumber = availableNumbers.splice(randomIndex, 1)[0];
+
+      // Lưu thông tin của người dùng và số được random
+      history.push({ name: name, number: chosenNumber });
+
+      // Hiển thị kết quả cho người dùng
+      document.getElementById("result").innerText = `${name} đã nhận số: ${chosenNumber}`;
+      
+      // Cập nhật danh sách lịch sử
+      updateHistory();
+
+      // Lưu lại dữ liệu mới
+      saveData();
+    }
+
+    function updateHistory() {
+      let historyList = document.getElementById("history");
+      historyList.innerHTML = "";
+      history.forEach(entry => {
+        let li = document.createElement("li");
+        li.innerText = `${entry.name} - Số: ${entry.number}`;
+        historyList.appendChild(li);
+      });
+    }
+
+    // Hàm xóa dữ liệu, chỉ admin mới được xóa
+    function clearData() {
+      const adminPass = prompt("Nhập mật khẩu admin để xóa dữ liệu:");
+      // Thay "matkhau123" bằng mật khẩu của bạn
+      if (adminPass === "matkhau123") {
+        localStorage.removeItem("history");
+        localStorage.removeItem("availableNumbers");
+        history = [];
+        availableNumbers = [1, 2, 3, 4, 5];
+        updateHistory();
+        document.getElementById("result").innerText = "Dữ liệu đã được xóa!";
+      } else {
+        alert("Mật khẩu không đúng!");
+      }
+    }
+
+    // Load dữ liệu khi trang được tải
+    window.onload = loadData;
+  </script>
+
+</body>
+</html>
